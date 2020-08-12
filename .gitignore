@@ -1,5 +1,10 @@
-*.obj
 *.mtl
+dragon.obj
+bunny.obj
+sce.obj
+sibenik.obj
+sponza.obj
+iscv2.obj
 screenshots
 *.zip
 .vscode
