@@ -15,3 +15,5 @@
  - control the camera with mouse and `w`, `s`, `a`, `d` `space` and `shift`
  - zoom in with scroll wheel or up/down arrow keys
  - press `esc` at any time to exit.
+ 
+ ![image](https://user-images.githubusercontent.com/58821638/90063957-00a8bf00-dce2-11ea-98f6-c7ce588d6238.png)
