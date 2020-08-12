@@ -1,0 +1,8 @@
+*.obj
+*.mtl
+screenshots
+*.zip
+.vscode
+*/
+tiny_obj_loader.h
+*.exe
