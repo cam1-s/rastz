@@ -5,6 +5,7 @@
 ### requirements:
  - `tiny_obj_loader.h` from https://github.com/tinyobjloader/tinyobjloader
  - `SDL2`
+ - `OpenMP`
 
 ### usage:
  - run `./rast`
