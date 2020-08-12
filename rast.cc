@@ -125,10 +125,8 @@ __always_inline vec4 calc_vertex(vertex const &vert, model const &m)
 
 __always_inline vec3 calc_fragment(vec3 const &frag_pos, vertex const &vert)
 {
-	//vec3 ret = frag_pos / vec3(width, height, 1);
-	//ret.z = (frag_pos.z - .15f) * 4.f;
-	//return (vert.nrm + 1.f) * .5f;
-
+	// phong shading
+	
 	vec3 nrm = glm::normalize(vert.nrm);
 
 	vec3 light_dir = glm::normalize(light_pos - vert.pos);
@@ -183,10 +181,6 @@ void render_tri(triangle const &_t, model const &_m)
 	vertex v1(_t.v1.pos / p0.z, _t.v1.nrm / p1.z, _t.v1.col, _t.v1.uv / p0.z);
 	vertex v2(_t.v2.pos / p0.z, _t.v2.nrm / p2.z, _t.v2.col, _t.v2.uv / p0.z);
 
-	/*vertex v0(_t.v0.pos, _t.v0.nrm, _t.v0.col, _t.v0.uv);
-	vertex v1(_t.v1.pos, _t.v1.nrm, _t.v1.col, _t.v1.uv);
-	vertex v2(_t.v2.pos, _t.v2.nrm, _t.v2.col, _t.v2.uv);
-	*/
 	vec3 rz = 1.f / vec3(p0.z, p1.z, p2.z);
 
 	for (int i = min.x; i < max.x; i++) for (int j = min.y; j < max.y; j++)
@@ -281,15 +275,6 @@ std::vector<triangle> load_obj(std::string const &filename)
 
 int main()
 {
-	SDL_Event event;
-	SDL_Window *sdl_window;
-	SDL_Renderer *sdl_renderer;
-
-	SDL_Init(SDL_INIT_VIDEO);
-	SDL_CreateWindowAndRenderer(width, height, 0, &sdl_window, &sdl_renderer);
-	SDL_Texture *sdl_framebuffer = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
-	SDL_SetWindowTitle(sdl_window, "rasterizer");
-
 	std::printf("Model name: \n");
 	std::string str;
 	std::getline(std::cin, str);
@@ -318,7 +303,6 @@ int main()
 	bool key_up = false;
 	bool key_down = false;
 	
-	vec2 old_cursor;
 	vec2 camera_yaw_pitch(0);
 	vec3 camera_pos(-1, 0, 0);
 	vec3 camera_look_at(0, 0, 0);
@@ -327,6 +311,15 @@ int main()
 	
 	float_type const zoom_speed = 3.;
 	float_type const move_speed = 8.;
+
+	SDL_Event event;
+	SDL_Window *sdl_window;
+	SDL_Renderer *sdl_renderer;
+
+	SDL_Init(SDL_INIT_VIDEO);
+	SDL_CreateWindowAndRenderer(width, height, 0, &sdl_window, &sdl_renderer);
+	SDL_Texture *sdl_framebuffer = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+	SDL_SetWindowTitle(sdl_window, "rasterizer");
 
 	while (!exit)
 	{
@@ -356,6 +349,8 @@ int main()
 				case SDLK_SPACE:  key_space = true; break;
 				case SDLK_UP:     key_up    = true; break;
 				case SDLK_DOWN:   key_down  = true; break;
+				
+				case SDLK_ESCAPE: exit      = true; break;
 				}
 				break;
 
@@ -380,6 +375,9 @@ int main()
 			} 
 		}
 
+		uint32_t flags = SDL_GetWindowFlags(sdl_window);
+		SDL_SetRelativeMouseMode(static_cast<SDL_bool>(flags & SDL_WINDOW_MOUSE_FOCUS));
+
 		viewport = vec4(clip_near, clip_far, width, height);
 
 		// bind the framebuffer and depth buffer
@@ -390,13 +388,12 @@ int main()
 
 		// update 
 		int mx, my;
-		SDL_GetMouseState(&mx, &my);
+		SDL_GetRelativeMouseState(&mx, &my);
 		vec2 cursor_pos(mx, my);
-		camera_yaw_pitch += (cursor_pos - old_cursor) * .03f;
-		old_cursor = cursor_pos;
+		camera_yaw_pitch += cursor_pos * .03f;
 
-		if (camera_yaw_pitch.x >  _2PI) camera_yaw_pitch.x -=  _2PI;
-		if (camera_yaw_pitch.x < -_2PI) camera_yaw_pitch.x -= -_2PI;
+		if (camera_yaw_pitch.x >  _2PI) camera_yaw_pitch.x -= _2PI;
+		if (camera_yaw_pitch.x <     0) camera_yaw_pitch.x += _2PI;
 		if (camera_yaw_pitch.y >  (M_PI_2 - .1)) camera_yaw_pitch.y =  (M_PI_2 - .1);
 		if (camera_yaw_pitch.y < -(M_PI_2 - .1)) camera_yaw_pitch.y = -(M_PI_2 - .1);		
 
